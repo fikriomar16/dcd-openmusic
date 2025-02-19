@@ -1,0 +1,31 @@
+{
+  "name": "openmusic-api",
+  "version": "1.0.0",
+  "description": "OpenMusic API - Dicoding",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node ./src/server.js",
+    "start:dev": "nodemon ./src/server.js",
+    "lint": "eslint ./src",
+    "migrate": "node-pg-migrate"
+  },
+  "author": "github.com/fikriomar16",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "@hapi/hapi": "^21.3.12",
+    "@hapi/jwt": "^3.2.0",
+    "auto-bind": "^4.0.0",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "joi": "^17.13.3",
+    "nanoid": "^3.1.20",
+    "node-pg-migrate": "^7.9.0",
+    "pg": "^8.13.1"
+  }
+}
