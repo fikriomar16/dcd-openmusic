@@ -137,18 +137,30 @@ class PlaylistsService {
     }
   }
 
+  async verifyPlaylistAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      await this.verifyCanCollaborate(playlistId, userId);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async verifyCanCollaborate(playlistId, userId) {
     const query = {
-      text: `SELECT *
-      FROM playlists 
-      LEFT JOIN users ON playlists.owner = users.id 
-      LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
+      text: `SELECT playlists.owner, collaborations.user_id, collaborations.playlist_id
+      FROM collaborations 
+      LEFT JOIN playlists ON collaborations.playlist_id = playlists.id
       WHERE (playlists.owner = $1 OR collaborations.user_id = $1) AND playlists.id = $2`,
       values: [userId, playlistId],
     };
     const result = await this._pool.query(query);
     if (!result.rowCount) {
-      throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+      throw new AuthorizationError('Anda tidak berhak mengakses resource ini.');
     }
   }
 

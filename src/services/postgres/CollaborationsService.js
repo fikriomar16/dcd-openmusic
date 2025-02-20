@@ -25,12 +25,24 @@ class CollaborationsService {
     return result.rowCount;
   }
 
+  async _checkIfCollaborationIsExists(playlistId, userId) {
+    const result = await this._pool.query({
+      text: 'SELECT * FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
+      values: [playlistId, userId],
+    });
+    return result;
+  }
+
   async addCollaboration(playlistId, userId) {
     if (!await this._checkIfuserIdIsExists(userId)) {
       throw new NotFoundError('User tidak ditemukan');
     }
     if (!await this._checkIfPlaylistIsExists(playlistId)) {
       throw new NotFoundError('Playlist tidak ditemukan');
+    }
+    const checkIfAlreadyExist = await this._checkIfCollaborationIsExists(playlistId, userId);
+    if (checkIfAlreadyExist.rowCount) {
+      return checkIfAlreadyExist.rows[0].id;
     }
     const id = `collab-${nanoid(16)}`;
 

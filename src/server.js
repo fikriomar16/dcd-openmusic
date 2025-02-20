@@ -131,7 +131,7 @@ const init = async () => {
       if (!response.isServer) {
         return h.continue;
       }
-      console.log(request.response);
+      console.log({ payload: request.payload, response: request.response });
       const newResponse = h.response({
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
