@@ -7,8 +7,12 @@ const { mapSongToModel } = require('../../utils');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistsService {
-  constructor() {
+  /**
+   * @param {import('./CollaborationsService.js')} collaborationsService
+   */
+  constructor(collaborationsService) {
     this._pool = new Pool();
+    this._collaborationsService = collaborationsService;
   }
 
   async addPlaylist({ name, owner }) {
