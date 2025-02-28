@@ -26,6 +26,7 @@ const CollaborationsValidator = require('./validator/collaborations');
 
 const ClientError = require('./exceptions/ClientError');
 const ServerError = require('./exceptions/ServerError');
+const config = require('./utils/config');
 
 const init = async () => {
   const albumService = new AlbumsService();
@@ -36,8 +37,8 @@ const init = async () => {
   const playlistsService = new PlaylistsService();
 
   const server = Hapi.server({
-    host: process.env.HOST,
-    port: process.env.PORT,
+    host: config.app.host,
+    port: config.app.port,
     routes: {
       cors: {
         origin: ['*'],
@@ -53,12 +54,12 @@ const init = async () => {
   ]);
   // mendefinisikan strategy autentikasi jwt
   server.auth.strategy('openmusicapi_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.jwt.accessTokenKey,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.jwt.accessTokenAge,
     },
     validate: (artifacts) => ({
       isValid: true,
