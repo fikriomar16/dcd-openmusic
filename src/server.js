@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
@@ -9,6 +10,9 @@ const UsersService = require('./services/postgres/UsersService');
 const AuthenticationsService = require('./services/postgres/AuthenticationsService');
 const PlaylistsService = require('./services/postgres/PlaylistsService');
 const CollaborationsService = require('./services/postgres/CollaborationsService');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const StorageService = require('./services/S3/StorageService');
+const CacheService = require('./services/redis/CacheService');
 
 const albums = require('./api/albums');
 const AlbumsValidator = require('./validator/albums');
@@ -23,18 +27,22 @@ const playlists = require('./api/playlists');
 const PlaylistsValidator = require('./validator/playlists');
 const collaborations = require('./api/collaborations');
 const CollaborationsValidator = require('./validator/collaborations');
+const _exports = require('./api/exports');
+const ExportsValidator = require('./validator/exports');
 
 const ClientError = require('./exceptions/ClientError');
 const ServerError = require('./exceptions/ServerError');
 const config = require('./utils/config');
 
 const init = async () => {
-  const albumService = new AlbumsService();
+  const storageService = new StorageService();
+  const cacheService = new CacheService();
+  const albumService = new AlbumsService(storageService, cacheService);
   const songService = new SongService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService();
-  const playlistsService = new PlaylistsService();
+  const playlistsService = new PlaylistsService(collaborationsService);
 
   const server = Hapi.server({
     host: config.app.host,
@@ -113,6 +121,14 @@ const init = async () => {
         service: collaborationsService,
         playlistsService,
         validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: _exports,
+      options: {
+        service: ProducerService,
+        validator: ExportsValidator,
+        playlistsService,
       },
     },
   ]);

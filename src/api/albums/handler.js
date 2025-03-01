@@ -62,5 +62,61 @@ class AlbumsHandler {
       message: 'Album berhasil dihapus',
     });
   }
+
+  async uploadCoverAlbumHandler(request, h) {
+    const { cover } = request.payload;
+    const { id } = request.params;
+    this._validator.validateCoverAlbumImageHeaders(cover.hapi.headers);
+    await this._service.getAlbumById(id);
+    await this._service.updateCoverAlbumById(id, cover);
+
+    const response = h.response({
+      status: 'success',
+      message: 'Sampul berhasil diunggah',
+    });
+    response.code(201);
+    return response;
+  }
+
+  async getAlbumLikesByIdHandler(request, h) {
+    const { id } = request.params;
+    const { data, source } = await this._service.getAlbumLikesById(id);
+    const response = h.response({
+      status: 'success',
+      data: {
+        likes: data,
+      },
+    });
+    if (source === 'cache') response.header('X-Data-Source', 'cache');
+    return response;
+  }
+
+  async likeAlbumHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    const { id: albumId } = request.params;
+    await this._service.getAlbumById(albumId);
+
+    const likeId = await this._service.likeAlbum(albumId, credentialId);
+    const response = h.response({
+      status: 'success',
+      message: 'Like berhasil ditambahkan',
+      data: {
+        likeId,
+      },
+    });
+    response.code(201);
+    return response;
+  }
+
+  async unlikeAlbumHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    const { id: albumId } = request.params;
+
+    await this._service.unlikeAlbum(albumId, credentialId);
+    return h.response({
+      status: 'success',
+      message: 'Like berhasil dibatalkan',
+    });
+  }
 }
 module.exports = AlbumsHandler;
