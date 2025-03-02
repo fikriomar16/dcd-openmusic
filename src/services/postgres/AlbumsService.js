@@ -117,7 +117,7 @@ class AlbumsService {
         values: [id],
       };
       const { rowCount } = await this._pool.query(query);
-      await this._cacheService.set(`album_likes:${id}`, rowCount);
+      await this._cacheService.set(`album_likes:${id}`, rowCount, 1800);
 
       return {
         source: 'db',
